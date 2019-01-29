@@ -1,0 +1,237 @@
+---
+swagger: "2.0"
+info:
+  description: "This is a sample mobile security service server."
+  version: "1.0.0"
+  title: "Mobile Security Service Server API"
+  contact:
+    email: "dffrench@redhat.com"
+tags:
+- name: "apps"
+  description: "All app endpoints"
+schemes:
+- "https"
+- "http"
+paths:
+  /apps:
+    get:
+      tags:
+      - "apps"
+      summary: "Retrieve list of apps"
+      description: "Returns root level information for all apps "
+      operationId: "getApps"
+      produces:
+      - "application/json"
+      parameters: []
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Apps"
+  /apps/{appId}:
+    get:
+      tags:
+      - "apps"
+      summary: "Get app by appId"
+      description: "Retrieve all information for a single app including all child\
+        \ information"
+      operationId: "getAppById"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "appId"
+        in: "path"
+        description: "The id for the app that needs to be fetched."
+        required: true
+        type: "string"
+        x-exportParamName: "AppId"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/App"
+        400:
+          description: "Invalid appId supplied"
+        404:
+          description: "App not found"
+    put:
+      tags:
+      - "apps"
+      summary: "Update app by id"
+      description: "Update a single app using the app id, including updating version\
+        \ information"
+      operationId: "updateApp"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "appId"
+        in: "path"
+        description: "The id for the app that needs to be updated."
+        required: true
+        type: "string"
+        x-exportParamName: "AppId"
+      - in: "body"
+        name: "body"
+        description: "Updated app object"
+        required: true
+        schema:
+          $ref: "#/definitions/App"
+        x-exportParamName: "Body"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "Invalid app supplied"
+        404:
+          description: "App not found"
+  /apps/{appId}/init:
+    post:
+      tags:
+      - "apps"
+      summary: "Init call from sdk"
+      description: "Capture metrics from device and return if the app version they\
+        \ are using is disabled and has a set disabled message"
+      operationId: "initAppFromDevice"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "appId"
+        in: "path"
+        description: "The id for the app."
+        required: true
+        type: "string"
+        x-exportParamName: "AppId"
+      - in: "body"
+        name: "body"
+        description: "Updated app object"
+        required: true
+        schema:
+          $ref: "#/definitions/AppInit"
+        x-exportParamName: "Body"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/AppInitResponse"
+        400:
+          description: "Invalid appId supplied"
+        404:
+          description: "App not found"
+definitions:
+  Apps:
+    type: "array"
+    items:
+      $ref: "#/definitions/Apps_inner"
+  App:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      appId:
+        type: "integer"
+        format: "int64"
+      appName:
+        type: "string"
+      disabled:
+        type: "boolean"
+        default: false
+      disabledMessage:
+        type: "string"
+      deployedVersions:
+        type: "array"
+        items:
+          $ref: "#/definitions/DeployedVersion"
+    example:
+      disabledMessage: "disabledMessage"
+      appName: "appName"
+      deployedVersions:
+      - numOfClients: 5
+        disabledMessage: "disabledMessage"
+        disabled: false
+        id: 1
+        version: "version"
+        numOfAppStartups: 5
+      - numOfClients: 5
+        disabledMessage: "disabledMessage"
+        disabled: false
+        id: 1
+        version: "version"
+        numOfAppStartups: 5
+      appId: 6
+      disabled: false
+      id: 0
+  DeployedVersion:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      version:
+        type: "string"
+      numOfClients:
+        type: "integer"
+        format: "int64"
+      numOfAppStartups:
+        type: "integer"
+        format: "int64"
+      disabled:
+        type: "boolean"
+        default: false
+      disabledMessage:
+        type: "string"
+    example:
+      numOfClients: 5
+      disabledMessage: "disabledMessage"
+      disabled: false
+      id: 1
+      version: "version"
+      numOfAppStartups: 5
+  AppInit:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      version:
+        type: "string"
+      deviceType:
+        type: "string"
+      deviceVersion:
+        type: "string"
+      deviceId:
+        type: "string"
+  AppInitResponse:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      disabled:
+        type: "boolean"
+        default: false
+      disabledMessage:
+        type: "string"
+    example:
+      disabledMessage: "disabledMessage"
+      disabled: false
+      id: 0
+  Apps_inner:
+    properties:
+      id:
+        type: "integer"
+        format: "int64"
+      appId:
+        type: "integer"
+        format: "int64"
+      appName:
+        type: "string"
+      numOfDeployedVersions:
+        type: "integer"
+        format: "int64"
+      numOfClients:
+        type: "integer"
+        format: "int64"
+      numOfAppLaunches:
+        type: "integer"
+        format: "int64"
